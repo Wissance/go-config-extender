@@ -66,6 +66,6 @@ And we would like to override:
 
 What methods this package have:
 1. `LoadConfig [T any] (configFile string) (T, error)` for loading without overriding
-2. `LoadConfigWithEnvs [T any] (configFile string) (T, error)` for loading with override
+2. `LoadConfigWithEnv [T any] (configFile string) (T, error)` for loading with override
 
 ## 3. Full example
