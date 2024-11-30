@@ -41,7 +41,7 @@ func TestLoadJSONConfigWithEnvOverride(t *testing.T) {
 	expectedPortValue := 6000
 	expectedEnabledValues := true
 	expectedThresholdValue := 0.25
-	err := addTechEnvVarForTest(portEnvVar, string(expectedPortValue))
+	err := addTechEnvVarForTest(portEnvVar, sf.Format("{0}", expectedPortValue))
 	assert.NoError(t, err)
 	err = addTechEnvVarForTest(httpLoggingEnabledEnvVar, sf.Format("{0}", expectedEnabledValues))
 	assert.NoError(t, err)

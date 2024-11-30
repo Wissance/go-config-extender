@@ -15,21 +15,23 @@ const technicalEnvPrefix = "__"
 
 func LoadJSONConfig[T any](configFile string) (T, error) {
 	fileData, err := readJSONConfigStr(configFile)
+	var emptyObj T
 	var cfg T
 	if err = json.Unmarshal(fileData, &cfg); err != nil {
-		return nil, errors.New(sf.Format("an error occurred during config file unmarshal:  {0}", err.Error()))
+		return emptyObj, errors.New(sf.Format("an error occurred during config file unmarshal:  {0}", err.Error()))
 	}
 	return cfg, nil
 }
 
 func LoadJSONConfigWithEnvOverride[T any](configFile string) (T, error) {
+	var emptyObj T
 	fileData, err := readJSONConfigStr(configFile)
 	if err != nil {
-		return nil, err
+		return emptyObj, err
 	}
 	var rawCfg map[string]interface{}
 	if err = json.Unmarshal(fileData, &rawCfg); err != nil {
-		return nil, errors.New(sf.Format("an error occurred during config file unmarshal:  {0}", err.Error()))
+		return emptyObj, errors.New(sf.Format("an error occurred during config file unmarshal:  {0}", err.Error()))
 	}
 	allEnvVars := os.Environ()
 	var techEnvVars = map[string]string{}
@@ -53,29 +55,30 @@ func LoadJSONConfigWithEnvOverride[T any](configFile string) (T, error) {
 			continue
 		}
 
+		intVal, parseErr := strconv.ParseInt(v, 10, 64)
+		if parseErr == nil {
+			_ = mask.Set(rawCfg, intVal)
+			continue
+		}
+
 		floatVal, parseErr := strconv.ParseFloat(v, 64)
-		if parseErr != nil {
+		if parseErr == nil {
 			_ = mask.Set(rawCfg, floatVal)
 			continue
 		}
 
-		intVal, parseErr := strconv.ParseInt(v, 10, 64)
-		if parseErr != nil {
-			_ = mask.Set(rawCfg, intVal)
-			continue
-		}
 		// other types, set raw
 		_ = mask.Set(rawCfg, v)
 	}
 
 	modifiedData, err := json.Marshal(&rawCfg)
 	if err != nil {
-		return nil, errors.New(sf.Format("an error occurred during saving applying changes from Env back to JSON : {0}", err.Error()))
+		return emptyObj, errors.New(sf.Format("an error occurred during saving applying changes from Env back to JSON : {0}", err.Error()))
 	}
 
 	var cfg T
 	if err = json.Unmarshal(modifiedData, &cfg); err != nil {
-		return nil, errors.New(sf.Format("an error occurred during modified config file unmarshal:  {0}", err.Error()))
+		return emptyObj, errors.New(sf.Format("an error occurred during modified config file unmarshal:  {0}", err.Error()))
 	}
 	return cfg, nil
 }
