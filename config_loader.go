@@ -3,6 +3,7 @@ package go_config_extender
 import (
 	"encoding/json"
 	"errors"
+	"github.com/ohler55/ojg/jp"
 	sf "github.com/wissance/stringFormatter"
 	"os"
 	"path/filepath"
@@ -40,7 +41,26 @@ func LoadJSONConfigWithEnvOverride[T any](configFile string) (T, error) {
 			techEnvVars[envVarPath] = parts[1]
 		}
 	}
-	return nil, nil
+
+	for k, v := range techEnvVars {
+		mask, _ := jp.ParseString(k)
+		// todo(UMV) -> type ...
+		// ???
+		// res := mask.Get(rawCfg)
+		// understand data type (v), we consider only simple types: bool, int64, float64, datetime, string
+		_ = mask.Set(rawCfg, v)
+	}
+
+	modifiedData, err := json.Marshal(&rawCfg)
+	if err != nil {
+		return nil, errors.New(sf.Format("an error occurred during saving applying changes from Env back to JSON : {0}", err.Error()))
+	}
+
+	var cfg T
+	if err = json.Unmarshal(modifiedData, &cfg); err != nil {
+		return nil, errors.New(sf.Format("an error occurred during modified config file unmarshal:  {0}", err.Error()))
+	}
+	return cfg, nil
 }
 
 func readJSONConfigStr(configFile string) ([]byte, error) {
