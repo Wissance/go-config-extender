@@ -69,3 +69,8 @@ What methods this package have:
 2. `LoadConfigWithEnv [T any] (configFile string) (T, error)` for loading with override
 
 ## 3. Full example
+
+A full example could be found in the test `TestLoadJSONConfigWithEnvOverride` ![test_file](./config_loader_test.go)
+In This test were set 3 variables of different types: `bool`, `int` and `float`
+
+Real App usage will be shown later after this package Release && usage in `Ferrum Community Authorization Server`
