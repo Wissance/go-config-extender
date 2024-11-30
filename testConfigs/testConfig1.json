@@ -1,0 +1,15 @@
+{
+  "server": {
+    "address": "localhost",
+    "port": 5000
+  },
+  "logging": {
+    "level": "info",
+    "httpLog": {
+      "enabled" : false
+    }
+  },
+  "sensors": {
+    "threshold": 0.1
+  }
+}

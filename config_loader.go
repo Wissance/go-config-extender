@@ -7,6 +7,7 @@ import (
 	sf "github.com/wissance/stringFormatter"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 )
 
@@ -44,10 +45,26 @@ func LoadJSONConfigWithEnvOverride[T any](configFile string) (T, error) {
 
 	for k, v := range techEnvVars {
 		mask, _ := jp.ParseString(k)
-		// todo(UMV) -> type ...
-		// ???
 		// res := mask.Get(rawCfg)
-		// understand data type (v), we consider only simple types: bool, int64, float64, datetime, string
+		// understand data type (v), we consider only simple types: bool, int64, float64, datetime(string), string
+		boolVal, parseErr := strconv.ParseBool(v)
+		if parseErr == nil {
+			_ = mask.Set(rawCfg, boolVal)
+			continue
+		}
+
+		floatVal, parseErr := strconv.ParseFloat(v, 64)
+		if parseErr != nil {
+			_ = mask.Set(rawCfg, floatVal)
+			continue
+		}
+
+		intVal, parseErr := strconv.ParseInt(v, 10, 64)
+		if parseErr != nil {
+			_ = mask.Set(rawCfg, intVal)
+			continue
+		}
+		// other types, set raw
 		_ = mask.Set(rawCfg, v)
 	}
 
